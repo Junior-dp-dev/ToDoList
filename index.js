@@ -3,8 +3,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const _ = require("lodash");
 
+require("dotenv").config();
+const mongo_uri = process.env.MONGO_URI;
+
 const app = express();
-const port = 3000;
 
 app.set("view engine", "ejs"); //Usar EJS com Express
 app.use(express.urlencoded({ extended: true }));
@@ -16,7 +18,7 @@ main().catch((err) => console.log(err));
 async function main() {
   mongoose.set("strictQuery", false);
   //await mongoose.connect("mongodb://127.0.0.1:27017/toDoListDB");
-  await mongoose.connect("mongodb+srv://admin-junior:jRlUZ58aYursvpDE@cluster0.mmqjria.mongodb.net/toDoListDB");
+  await mongoose.connect(mongo_uri);
 }
 
 const itemSchema = new mongoose.Schema({
@@ -63,7 +65,6 @@ app.post("/", (req, res) => {
     res.redirect("/");
   } else {
     List.findOne({ name: listName }, (err, result) => {
-      console.log(result.items);
       result.items.push(item);
       result.save();
       res.redirect("/" + listName);
@@ -74,7 +75,6 @@ app.post("/", (req, res) => {
 app.post("/delete", (req, res) => {
   const checkItemId = req.body.checkbox;
   const listName = req.body.listName;
-  console.log(listName);
 
   if (listName === "Today") {
     Item.findByIdAndDelete(checkItemId, (err) => {
@@ -129,6 +129,6 @@ app.post("/work", (req, res) => {
   res.redirect("/work");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}!`);
+app.listen(process.env.PORT || 3000, function () {
+  console.log("Server Start");
 });
